@@ -12,8 +12,8 @@ Automated API tests for public endpoints at https://api.restful-api.dev/objects 
 
 ## Prerequisites
 
-- Node.js v18 or higher
-- npm
+- Node.js - 24.13.1
+- npm - 11.8.0
 
 ## Installation
 
