@@ -28,7 +28,7 @@ npx playwright test
 
 With verbose output:
 
-npx playwright test --reporter=list
+npx playwright test --reporter=html
 
 ## Project structure
 
