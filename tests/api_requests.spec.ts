@@ -1,48 +1,49 @@
-import { test, expect, request } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
-test('GET, POST, DELETE example for restful-api.dev', async () => {
- 
-  const apiContext = await request.newContext({
-    baseURL: 'https://api.restful-api.dev',
-    extraHTTPHeaders: {
-      'Content-Type': 'application/json'
-    }
-  });
+test('GET /objects - returns list of objects', async ({ request }) => {
+  const response = await request.get('/objects');
+  expect(response.ok()).toBeTruthy();
 
-  // GET objects
+  const data = await response.json();
+  expect(Array.isArray(data)).toBeTruthy();
+  console.log(data);
+});
 
-  const getResponse = await apiContext.get('/objects');
-  expect(getResponse.ok()).toBeTruthy();
-
-  const getData = await getResponse.json();
-  console.log('GET objects:', getData);
-
-
-  // POST objects
-
-  const postResponse = await apiContext.post('/objects', {
+test('POST /objects - creates a new object', async ({ request }) => {
+  const response = await request.post('/objects', {
     data: {
       name: 'Igor test object',
       data: {
         year: 2026,
-        color: 'black'
-      }
-    }
+        color: 'black',
+      },
+    },
   });
 
+  expect(response.ok()).toBeTruthy();
+  const created = await response.json();
+  expect(created.id).toBeTruthy();
+  expect(created.name).toBe('Igor test object');
+  console.log('Created object ID:', created.id);
+});
+
+
+test('POST then DELETE /objects/:id - full lifecycle', async ({ request }) => {
+  // Create
+  const postResponse = await request.post('/objects', {
+    data: {
+      name: 'Igor test object2',
+      data: { year: 2024, color: 'yellow' },
+    },
+  });
   expect(postResponse.ok()).toBeTruthy();
+  const created = await postResponse.json();
+  const id = created.id;
+  expect(id).toBeTruthy();
 
-  const postData = await postResponse.json();
-  console.log('POST created object:', postData);
-
-  const createdId = postData.id;
-  expect(createdId).toBeTruthy();
-
-
-  // DELETE objects
-    const deleteResponse = await apiContext.delete(`/objects/${createdId}`);
-    expect(deleteResponse.ok()).toBeTruthy();
-
-    const deleteData = await deleteResponse.json();
-    console.log('DELETE result:', deleteData);
+  // Delete
+  const deleteResponse = await request.delete(`/objects/${id}`);
+  expect(deleteResponse.ok()).toBeTruthy();
+  const result = await deleteResponse.json();
+  console.log('DELETE result:', result);
 });
